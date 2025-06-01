@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boarding House Rent Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .controls {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .form-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .form-group input, .form-group select {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            min-width: 150px;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-print {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-print:hover {
+            background: #138496;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .property-section {
+            margin-bottom: 40px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .property-header {
+            background: #6c757d;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .property-header h3 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+
+        .property-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 0.9em;
+        }
+
+        .stat {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
+
+        .boarders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 30px;
+        }
+
+        .boarder-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .boarder-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .boarder-card.paid {
+            border-color: #28a745;
+            background: #f8fff9;
+        }
+
+        .boarder-card.unpaid {
+            border-color: #dc3545;
+            background: #fff8f8;
+        }
+
+        .boarder-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .boarder-name {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .payment-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-paid {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-unpaid {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .boarder-details {
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .boarder-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            font-size: 1.5em;
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .container {
+                box-shadow: none;
+                border-radius: 0;
+            }
+            
+            .controls {
+                display: none;
+            }
+            
+            .btn {
+                display: none;
+            }
+            
+            .property-section {
+                break-inside: avoid;
+                margin-bottom: 30px;
+            }
+            
+            .boarder-card {
+                break-inside: avoid;
+                box-shadow: none;
+            }
+            
+            .header {
+                background: #333 !important;
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .form-group input, .form-group select {
+                min-width: auto;
+            }
+            
+            .boarders-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 Boarding House Manager</h1>
+            <p>Track rental payments and manage properties with ease</p>
+        </div>
+
+        <div class="controls">
+            <div class="form-group">
+                <input type="text" id="propertyName" placeholder="Property Name (e.g., Main House)">
+                <button class="btn btn-primary" onclick="addProperty()">Add Property</button>
+                <button class="btn btn-print" onclick="printReport()">🖨️ Print Report</button>
+                <button class="btn btn-danger" onclick="clearAllData()">Clear All Data</button>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="boarderName" placeholder="Boarder Name">
+                <input type="number" id="roomNumber" placeholder="Room #">
+                <input type="number" id="rentAmount" placeholder="Monthly Rent">
+                <select id="propertySelect">
+                    <option value="">Select Property</option>
+                </select>
+                <button class="btn btn-success" onclick="addBoarder()">Add Boarder</button>
+            </div>
+        </div>
+
+        <div class="content" id="content">
+            <div class="empty-state">
+                <h3>Welcome to Your Boarding House Manager!</h3>
+                <p>Start by adding a property, then add boarders to track their payments.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data storage
+        let properties = {};
+        let currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM format
+
+        // Load data from memory on page load
+        window.onload = function() {
+            loadData();
+            renderContent();
+        };
+
+        // Save data to localStorage
+        function saveData() {
+            try {
+                localStorage.setItem('boardingHouseData', JSON.stringify(properties));
+                localStorage.setItem('lastSaved', new Date().toISOString());
+            } catch (error) {
+                console.log('Could not save to localStorage:', error);
+            }
+        }
+
+        // Load data from localStorage
+        function loadData() {
+            try {
+                const savedData = localStorage.getItem('boardingHouseData');
+                if (savedData) {
+                    properties = JSON.parse(savedData);
+                } else {
+                    // Add sample data only if no saved data exists
+                    properties = {
+                        'main-house': {
+                            name: 'Main House',
+                            boarders: {
+                                'john-doe': {
+                                    name: 'John Doe',
+                                    room: 101,
+                                    rent: 5000,
+                                    payments: {}
+                                },
+                                'jane-smith': {
+                                    name: 'Jane Smith',
+                                    room: 102,
+                                    rent: 5500,
+                                    payments: {[currentMonth]: true}
+                                }
+                            }
+                        }
+                    };
+                    saveData(); // Save the initial sample data
+                }
+            } catch (error) {
+                console.log('Could not load from localStorage:', error);
+                properties = {};
+            }
+        }
+
+        // Add new property
+        function addProperty() {
+            const name = document.getElementById('propertyName').value.trim();
+            if (!name) {
+                alert('Please enter a property name');
+                return;
+            }
+
+            const id = name.toLowerCase().replace(/\s+/g, '-');
+            if (properties[id]) {
+                alert('Property already exists');
+                return;
+            }
+
+            properties[id] = {
+                name: name,
+                boarders: {}
+            };
+
+            document.getElementById('propertyName').value = '';
+            updatePropertySelect();
+            renderContent();
+            saveData();
+        }
+
+        // Add new boarder
+        function addBoarder() {
+            const name = document.getElementById('boarderName').value.trim();
+            const room = document.getElementById('roomNumber').value;
+            const rent = document.getElementById('rentAmount').value;
+            const propertyId = document.getElementById('propertySelect').value;
+
+            if (!name || !room || !rent || !propertyId) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            const boarderId = name.toLowerCase().replace(/\s+/g, '-');
+            
+            properties[propertyId].boarders[boarderId] = {
+                name: name,
+                room: parseInt(room),
+                rent: parseInt(rent),
+                payments: {}
+            };
+
+            // Clear form
+            document.getElementById('boarderName').value = '';
+            document.getElementById('roomNumber').value = '';
+            document.getElementById('rentAmount').value = '';
+            
+            renderContent();
+            saveData();
+        }
+
+        // Toggle payment status
+        function togglePayment(propertyId, boarderId) {
+            const payments = properties[propertyId].boarders[boarderId].payments;
+            payments[currentMonth] = !payments[currentMonth];
+            renderContent();
+            saveData();
+        }
+
+        // Remove boarder
+        function removeBoarder(propertyId, boarderId) {
+            if (confirm('Are you sure you want to remove this boarder?')) {
+                delete properties[propertyId].boarders[boarderId];
+                renderContent();
+                saveData();
+            }
+        }
+
+        // Update property select dropdown
+        function updatePropertySelect() {
+            const select = document.getElementById('propertySelect');
+            select.innerHTML = '<option value="">Select Property</option>';
+            
+            Object.keys(properties).forEach(id => {
+                const option = document.createElement('option');
+                option.value = id;
+                option.textContent = properties[id].name;
+                select.appendChild(option);
+            });
+        }
+
+        // Render all content
+        function renderContent() {
+            updatePropertySelect();
+            const content = document.getElementById('content');
+            
+            if (Object.keys(properties).length === 0) {
+                content.innerHTML = `
+                    <div class="empty-state">
+                        <h3>Welcome to Your Boarding House Manager!</h3>
+                        <p>Start by adding a property, then add boarders to track their payments.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            Object.keys(properties).forEach(propertyId => {
+                const property = properties[propertyId];
+                const boarders = Object.keys(property.boarders);
+                const paidCount = boarders.filter(id => property.boarders[id].payments[currentMonth]).length;
+                const totalRent = boarders.reduce((sum, id) => sum + property.boarders[id].rent, 0);
+                const collectedRent = boarders
+                    .filter(id => property.boarders[id].payments[currentMonth])
+                    .reduce((sum, id) => sum + property.boarders[id].rent, 0);
+
+                html += `
+                    <div class="property-section">
+                        <div class="property-header">
+                            <h3>${property.name}</h3>
+                            <div class="property-stats">
+                                <div class="stat">Paid: ${paidCount}/${boarders.length}</div>
+                                <div class="stat">Collected: ₱${collectedRent.toLocaleString()}</div>
+                                <div class="stat">Total: ₱${totalRent.toLocaleString()}</div>
+                            </div>
+                        </div>
+                        <div class="boarders-grid">
+                `;
+
+                if (boarders.length === 0) {
+                    html += `
+                        <div class="empty-state">
+                            <h3>No boarders yet</h3>
+                            <p>Add boarders to this property to start tracking payments.</p>
+                        </div>
+                    `;
+                } else {
+                    boarders.forEach(boarderId => {
+                        const boarder = property.boarders[boarderId];
+                        const isPaid = boarder.payments[currentMonth];
+                        
+                        html += `
+                            <div class="boarder-card ${isPaid ? 'paid' : 'unpaid'}">
+                                <div class="boarder-header">
+                                    <div class="boarder-name">${boarder.name}</div>
+                                    <div class="payment-status ${isPaid ? 'status-paid' : 'status-unpaid'}">
+                                        ${isPaid ? 'Paid' : 'Unpaid'}
+                                    </div>
+                                </div>
+                                <div class="boarder-details">
+                                    <div>Room: ${boarder.room}</div>
+                                    <div>Monthly Rent: ₱${boarder.rent.toLocaleString()}</div>
+                                    <div>Month: ${new Date(currentMonth).toLocaleDateString('en-US', {month: 'long', year: 'numeric'})}</div>
+                                </div>
+                                <div class="boarder-actions">
+                                    <button class="btn ${isPaid ? 'btn-danger' : 'btn-success'}" 
+                                            onclick="togglePayment('${propertyId}', '${boarderId}')">
+                                        ${isPaid ? 'Mark Unpaid' : 'Mark Paid'}
+                                    </button>
+                                    <button class="btn btn-danger" 
+                                            onclick="removeBoarder('${propertyId}', '${boarderId}')">
+                                        Remove
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            content.innerHTML = html;
+        }
+
+        // Print report
+        function printReport() {
+            window.print();
+        }
+
+        // Clear all data (for testing/reset)
+        function clearAllData() {
+            if (confirm('Are you sure you want to clear ALL data? This cannot be undone.')) {
+                localStorage.removeItem('boardingHouseData');
+                localStorage.removeItem('lastSaved');
+                properties = {};
+                renderContent();
+                alert('All data cleared successfully!');
+            }
+        }
+
+        // Initialize
+        renderContent();
+    </script>
+</body>
+</html>
